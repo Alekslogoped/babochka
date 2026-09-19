@@ -7,547 +7,845 @@
 <title>Ёжик идёт к бабушке</title>
 
 <style>
-*{
-    box-sizing:border-box;
+
+* {
+    box-sizing: border-box;
 }
 
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    font-family:Arial, sans-serif;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #2f3428;
+    font-family: Arial, sans-serif;
 }
 
-body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#eee8dc;
+/* =========================
+   ИГРОВОЕ ПОЛЕ 16:9
+========================= */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#game{
-    position:relative;
-    width:100vw;
-    height:56.25vw;
-    max-height:100vh;
-    max-width:177.78vh;
-    overflow:hidden;
+#game {
+    position: relative;
 
-    background:
-        linear-gradient(
-            to bottom,
-            #cfe7ef 0%,
-            #e7efd0 42%,
-            #d4b56c 43%,
-            #b9874c 100%
-        );
+    width: 100vw;
+    height: 56.25vw;
+
+    max-width: 177.78vh;
+    max-height: 100vh;
+
+    overflow: hidden;
+
+    background-image: url("fon.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-/* ---------- Заголовок ---------- */
 
-#instruction{
-    position:absolute;
-    top:3%;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:20;
+/* =========================
+   ИНСТРУКЦИЯ
+========================= */
 
-    background:rgba(255,255,255,.92);
-    padding:12px 25px;
-    border-radius:25px;
+#instruction {
 
-    font-size:clamp(15px,2vw,30px);
-    font-weight:bold;
-    color:#6c4829;
+    position: absolute;
 
-    box-shadow:0 4px 10px rgba(0,0,0,.15);
-    white-space:nowrap;
+    top: 3%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 50;
+
+    padding: 11px 25px;
+
+    background: rgba(255,255,255,.92);
+
+    border-radius: 28px;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.18);
+
+    color: #654322;
+
+    font-size: clamp(15px,1.7vw,28px);
+
+    font-weight: 800;
+
+    white-space: nowrap;
 }
 
-/* ---------- Дорожка ---------- */
 
-.path{
-    position:absolute;
-    left:5%;
-    right:7%;
-    bottom:10%;
-    height:43%;
+/* =========================
+   ЁЖИК
+========================= */
 
-    border-bottom:45px solid rgba(230,201,141,.85);
-    border-radius:50%;
+#hedgehog {
+
+    position: absolute;
+
+    width: 10%;
+
+    left: 2%;
+    top: 70%;
+
+    z-index: 30;
+
+    transition:
+        left 1.35s ease-in-out,
+        top 1.35s ease-in-out;
+
+    transform-origin: center bottom;
 }
 
-/* ---------- Декор ---------- */
+#hedgehog img {
 
-.tree{
-    position:absolute;
-    font-size:clamp(70px,10vw,170px);
-    opacity:.9;
-    pointer-events:none;
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    pointer-events: none;
 }
 
-.tree1{
-    left:2%;
-    top:12%;
+
+/* Покачивание во время ходьбы */
+
+#hedgehog.walking {
+
+    animation:
+        walkingBob .24s infinite alternate ease-in-out;
 }
 
-.tree2{
-    left:23%;
-    top:8%;
+@keyframes walkingBob {
+
+    from {
+        transform:
+            translateY(0)
+            rotate(-2deg);
+    }
+
+    to {
+        transform:
+            translateY(-6px)
+            rotate(2deg);
+    }
 }
 
-.tree3{
-    right:22%;
-    top:9%;
-}
 
-/* ---------- Слоги ---------- */
+/* =========================
+   СЛОГИ
+========================= */
 
-.stop{
-    position:absolute;
-    width:8%;
-    aspect-ratio:1/1;
+.stop {
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    position: absolute;
 
-    font-size:clamp(17px,2.3vw,36px);
-    font-weight:900;
-    color:#55361e;
+    width: 7.5%;
+    aspect-ratio: 1 / 1;
 
-    cursor:pointer;
-    user-select:none;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    z-index: 20;
 
     transition:
         transform .2s,
-        filter .2s,
-        opacity .3s;
-
-    z-index:8;
+        opacity .25s,
+        filter .25s;
 }
 
-.stop:hover{
-    transform:scale(1.12);
+
+/* ТЕКСТ */
+
+.stop span {
+
+    position: relative;
+
+    z-index: 5;
+
+    font-size: clamp(16px,2vw,34px);
+
+    font-weight: 900;
+
+    color: #54321c;
+
+    text-shadow:
+        0 2px 2px rgba(255,255,255,.8);
 }
 
-.stop.locked{
-    cursor:default;
-    filter:grayscale(.6);
-    opacity:.7;
-}
 
-.stop.current{
-    animation:pulse 1.1s infinite;
-    filter:none;
-    opacity:1;
-}
+/* =========================
+   ЛИСТИК
+========================= */
 
-.stop.done{
-    opacity:.35;
-    pointer-events:none;
-}
+.leaf {
 
-@keyframes pulse{
-    0%,100%{
-        transform:scale(1);
-    }
-    50%{
-        transform:scale(1.12);
-    }
-}
+    background:
+        linear-gradient(
+            145deg,
+            #f8c64c,
+            #dd812b
+        );
 
-/* лист */
-
-.leaf{
-    background:#e5a536;
-    border-radius:70% 25% 70% 25%;
-    transform:rotate(15deg);
-}
-
-.leaf span{
-    transform:rotate(-15deg);
-}
-
-/* гриб */
-
-.mushroom{
-    background:#d87646;
-    border-radius:55% 55% 25% 25%;
-}
-
-.mushroom::after{
-    content:"";
-    position:absolute;
-    width:40%;
-    height:45%;
-    background:#f6e5bd;
-    bottom:-25%;
-    border-radius:10px;
-    z-index:-1;
-}
-
-/* жёлудь */
-
-.acorn{
-    background:#9a6537;
-    border-radius:45% 45% 60% 60%;
-}
-
-.acorn::before{
-    content:"";
-    position:absolute;
-    width:90%;
-    height:30%;
-    background:#694427;
-    top:-7%;
-    border-radius:50%;
-}
-
-/* ---------- Ёжик ---------- */
-
-#hedgehog{
-    position:absolute;
-    width:10%;
-    aspect-ratio:1/1;
-
-    left:3%;
-    top:67%;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    font-size:clamp(45px,7vw,105px);
-
-    z-index:15;
-
-    transition:
-        left 1.25s ease-in-out,
-        top 1.25s ease-in-out;
-
-    transform-origin:center bottom;
-}
-
-#hedgehog.walking{
-    animation:waddle .25s infinite alternate;
-}
-
-@keyframes waddle{
-    from{
-        transform:translateY(0) rotate(-2deg);
-    }
-    to{
-        transform:translateY(-7px) rotate(2deg);
-    }
-}
-
-/* ---------- Дом бабушки ---------- */
-
-#house{
-    position:absolute;
-    right:2%;
-    bottom:12%;
-
-    width:16%;
-    height:29%;
-
-    background:#86613e;
-    border-radius:50% 50% 10% 10%;
-
-    z-index:5;
+    border-radius:
+        65% 25%
+        65% 25%;
 
     box-shadow:
-        inset 0 0 0 8px rgba(82,50,25,.18),
-        0 7px 10px rgba(0,0,0,.18);
+        0 5px 8px rgba(0,0,0,.18);
+
+    transform: rotate(10deg);
 }
 
-#house::before{
-    content:"🍂";
-    position:absolute;
-    font-size:clamp(35px,6vw,90px);
-    top:-35%;
-    left:30%;
+.leaf span {
+
+    transform: rotate(-10deg);
 }
 
-#door{
-    position:absolute;
-    width:43%;
-    height:62%;
-    left:29%;
-    bottom:0;
 
-    background:#49331f;
-    border-radius:50% 50% 5px 5px;
+/* =========================
+   ЖЁЛУДЬ
+========================= */
 
-    transition:transform .6s;
-    transform-origin:left;
+.acorn {
+
+    width: 6.5%;
+
+    background:
+        linear-gradient(
+            #b7793d,
+            #8c542c
+        );
+
+    border-radius:
+        45% 45%
+        60% 60%;
+
+    box-shadow:
+        0 5px 8px rgba(0,0,0,.18);
 }
 
-#house.open #door{
-    transform:perspective(400px) rotateY(-75deg);
+.acorn::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 95%;
+    height: 28%;
+
+    top: -6%;
+
+    background: #684125;
+
+    border-radius: 50%;
 }
 
-/* ---------- Бабушка ---------- */
 
-#grandma{
-    position:absolute;
-    right:6%;
-    top:59%;
+/* =========================
+   ГРИБОК
+========================= */
 
-    width:10%;
-    aspect-ratio:1;
+.mushroom {
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    width: 7%;
 
-    font-size:clamp(45px,7vw,100px);
+    height: 6%;
 
-    opacity:0;
-    transform:scale(.3);
+    background:
+        linear-gradient(
+            #e77b48,
+            #b94e32
+        );
 
-    z-index:14;
+    border-radius:
+        55% 55%
+        25% 25%;
+
+    box-shadow:
+        0 5px 8px rgba(0,0,0,.18);
+}
+
+.mushroom::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 35%;
+    height: 70%;
+
+    left: 32%;
+    top: 65%;
+
+    background: #f3dfb7;
+
+    border-radius:
+        4px 4px
+        10px 10px;
+
+    z-index: -1;
+}
+
+
+/* =========================
+   СОСТОЯНИЯ
+========================= */
+
+.stop.locked {
+
+    opacity: .68;
+
+    filter:
+        grayscale(.35);
+
+    cursor: default;
+}
+
+
+.stop.current {
+
+    opacity: 1;
+
+    filter: none;
+
+    animation:
+        pulse 1s infinite;
+}
+
+
+@keyframes pulse {
+
+    0%,100% {
+
+        scale: 1;
+
+    }
+
+    50% {
+
+        scale: 1.12;
+
+    }
+
+}
+
+
+.stop.done {
+
+    opacity: .25;
+
+    pointer-events: none;
+}
+
+
+/* =========================
+   БАБУШКА
+========================= */
+
+#grandma {
+
+    position: absolute;
+
+    width: 10%;
+
+    right: 7%;
+    top: 47%;
+
+    z-index: 28;
+
+    opacity: 0;
+
+    transform:
+        scale(.3)
+        translateY(20px);
 
     transition:
-        opacity .6s,
-        transform .6s,
-        right .8s;
+        opacity .7s,
+        transform .7s;
 }
 
-#grandma.show{
-    opacity:1;
-    transform:scale(1);
-    right:12%;
+
+#grandma img {
+
+    width: 100%;
+
+    display: block;
 }
 
-/* ---------- Сердечки ---------- */
 
-.heart{
-    position:absolute;
-    z-index:30;
+#grandma.show {
 
-    font-size:clamp(22px,3vw,48px);
+    opacity: 1;
 
-    pointer-events:none;
-
-    animation:heartUp 2s ease-out forwards;
+    transform:
+        scale(1)
+        translateY(0);
 }
 
-@keyframes heartUp{
-    0%{
-        transform:translateY(0) scale(.4);
-        opacity:0;
+
+/* =========================
+   СЕРДЕЧКИ
+========================= */
+
+.heart {
+
+    position: absolute;
+
+    z-index: 60;
+
+    pointer-events: none;
+
+    font-size:
+        clamp(20px,3vw,48px);
+
+    animation:
+        heartFly 2.2s ease-out forwards;
+}
+
+
+@keyframes heartFly {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translateY(0)
+            scale(.4);
+
     }
 
-    25%{
-        opacity:1;
+    20% {
+
+        opacity: 1;
+
     }
 
-    100%{
-        transform:translateY(-150px) scale(1.3);
-        opacity:0;
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translateY(-150px)
+            scale(1.3);
+
     }
+
 }
 
-/* ---------- Финал ---------- */
 
-#finish{
-    position:absolute;
-    left:50%;
-    top:24%;
-    transform:translate(-50%,-50%) scale(.5);
+/* =========================
+   ФИНАЛЬНАЯ НАДПИСЬ
+========================= */
 
-    background:white;
-    padding:18px 32px;
+#finish {
 
-    border-radius:30px;
+    position: absolute;
 
-    font-size:clamp(20px,3vw,42px);
-    font-weight:bold;
+    top: 18%;
+    left: 50%;
 
-    color:#8a4c31;
+    transform:
+        translateX(-50%)
+        scale(.6);
 
-    opacity:0;
-    pointer-events:none;
+    padding:
+        14px 30px;
 
-    z-index:40;
+    border-radius:
+        30px;
 
-    transition:.5s;
+    background:
+        rgba(255,255,255,.94);
 
-    box-shadow:0 5px 20px rgba(0,0,0,.2);
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,.18);
+
+    color: #8a4d2d;
+
+    font-size:
+        clamp(18px,2.3vw,38px);
+
+    font-weight: 900;
+
+    opacity: 0;
+
+    z-index: 70;
+
+    transition: .5s;
+
+    pointer-events: none;
 }
 
-#finish.show{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1);
+
+#finish.show {
+
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        scale(1);
+
 }
 
-#restart{
-    position:absolute;
-    left:50%;
-    bottom:3%;
 
-    transform:translateX(-50%);
+/* =========================
+   КНОПКА
+========================= */
 
-    padding:12px 25px;
+#restart {
 
-    border:0;
-    border-radius:25px;
+    position: absolute;
 
-    background:#e79b45;
-    color:white;
+    left: 50%;
+    bottom: 3%;
 
-    font-size:clamp(15px,1.6vw,24px);
-    font-weight:bold;
+    transform:
+        translateX(-50%);
 
-    cursor:pointer;
+    padding:
+        11px 24px;
 
-    z-index:50;
+    border: none;
 
-    display:none;
+    border-radius:
+        25px;
+
+    background:
+        #e89842;
+
+    color: white;
+
+    font-size:
+        clamp(14px,1.5vw,23px);
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    z-index: 80;
+
+    display: none;
+
+    box-shadow:
+        0 4px 10px
+        rgba(0,0,0,.2);
 }
 
 </style>
 </head>
 
+
 <body>
 
 <div id="game">
 
+
+    <!-- ИНСТРУКЦИЯ -->
+
     <div id="instruction">
-        🍁 Прочитай слог и помоги ёжику дойти до бабушки
+        🍂 Прочитай слог и помоги ёжику дойти до бабушки
     </div>
 
-    <div class="tree tree1">🌳</div>
-    <div class="tree tree2">🌲</div>
-    <div class="tree tree3">🌳</div>
 
-    <div class="path"></div>
 
-    <!-- Остановки -->
+    <!-- СЛОГИ НА ДОРОЖКЕ -->
 
-    <div class="stop leaf current"
-         data-index="0"
-         style="left:14%; top:68%;">
+
+    <div
+        class="stop leaf current"
+        data-index="0"
+        style="
+        left:15%;
+        top:72%;
+        "
+    >
         <span>ША</span>
     </div>
 
-    <div class="stop mushroom locked"
-         data-index="1"
-         style="left:27%; top:58%;">
+
+
+    <div
+        class="stop acorn locked"
+        data-index="1"
+        style="
+        left:27%;
+        top:63%;
+        "
+    >
         <span>ШО</span>
     </div>
 
-    <div class="stop acorn locked"
-         data-index="2"
-         style="left:40%; top:67%;">
+
+
+    <div
+        class="stop mushroom locked"
+        data-index="2"
+        style="
+        left:39%;
+        top:68%;
+        "
+    >
         <span>ШУ</span>
     </div>
 
-    <div class="stop leaf locked"
-         data-index="3"
-         style="left:51%; top:53%;">
+
+
+    <div
+        class="stop leaf locked"
+        data-index="3"
+        style="
+        left:49%;
+        top:58%;
+        "
+    >
         <span>ШИ</span>
     </div>
 
-    <div class="stop mushroom locked"
-         data-index="4"
-         style="left:62%; top:64%;">
+
+
+    <div
+        class="stop acorn locked"
+        data-index="4"
+        style="
+        left:59%;
+        top:63%;
+        "
+    >
         <span>АШ</span>
     </div>
 
-    <div class="stop acorn locked"
-         data-index="5"
-         style="left:71%; top:51%;">
+
+
+    <div
+        class="stop mushroom locked"
+        data-index="5"
+        style="
+        left:69%;
+        top:56%;
+        "
+    >
         <span>ОШ</span>
     </div>
 
-    <div class="stop leaf locked"
-         data-index="6"
-         style="left:78%; top:65%;">
+
+
+    <div
+        class="stop leaf locked"
+        data-index="6"
+        style="
+        left:78%;
+        top:58%;
+        "
+    >
         <span>УШ</span>
     </div>
 
-    <!-- Ёжик -->
 
-    <div id="hedgehog">🦔</div>
 
-    <!-- Норка -->
+    <!-- ЁЖИК -->
 
-    <div id="house">
-        <div id="door"></div>
+    <div id="hedgehog">
+
+        <img
+            src="ezhik.png"
+            alt="Ёжик"
+        >
+
     </div>
 
-    <!-- Бабушка -->
 
-    <div id="grandma">🦔</div>
+
+    <!--
+    БАБУШКА
+
+    Когда сделаем картинку,
+    загрузи её как:
+
+    babushka.png
+    -->
+
+    <div id="grandma">
+
+        <img
+            src="babushka.png"
+            alt="Бабушка ежиха"
+        >
+
+    </div>
+
+
+
+    <!-- ФИНАЛ -->
 
     <div id="finish">
-        ❤️ Ёжик пришёл к бабушке! ❤️
+        ❤️ Ура! Ёжик пришёл к бабушке!
     </div>
+
 
     <button id="restart">
         Пройти ещё раз
     </button>
 
+
 </div>
+
+
 
 <script>
 
-/* ===========================
-   ОСНОВНЫЕ ПЕРЕМЕННЫЕ
-=========================== */
 
-const hedgehog = document.getElementById("hedgehog");
-const grandma = document.getElementById("grandma");
-const house = document.getElementById("house");
-const finish = document.getElementById("finish");
-const restart = document.getElementById("restart");
+/* =========================
+   ЭЛЕМЕНТЫ
+========================= */
 
-const stops = [...document.querySelectorAll(".stop")];
+
+const game =
+    document.getElementById("game");
+
+
+const hedgehog =
+    document.getElementById("hedgehog");
+
+
+const grandma =
+    document.getElementById("grandma");
+
+
+const finish =
+    document.getElementById("finish");
+
+
+const restart =
+    document.getElementById("restart");
+
+
+const stops =
+    [...document.querySelectorAll(".stop")];
+
+
 
 let current = 0;
+
 let moving = false;
 
 
-/* ===========================
-   ТОЧКИ ДВИЖЕНИЯ ЁЖИКА
-=========================== */
+
+/* =========================
+   ТОЧКИ ДВИЖЕНИЯ
+========================= */
+
+
+/*
+Эти координаты соответствуют
+новой длинной дорожке.
+
+Их потом можно очень точно
+подогнать под фон.
+*/
+
 
 const positions = [
 
-    {left:12, top:64},
-    {left:25, top:54},
-    {left:38, top:63},
-    {left:49, top:49},
-    {left:60, top:60},
-    {left:69, top:47},
-    {left:76, top:61},
+    {
+        left: 12,
+        top: 68
+    },
 
-    // финальная точка около норки
-    {left:84, top:62}
+    {
+        left: 24,
+        top: 59
+    },
+
+    {
+        left: 36,
+        top: 64
+    },
+
+    {
+        left: 46,
+        top: 54
+    },
+
+    {
+        left: 56,
+        top: 59
+    },
+
+    {
+        left: 66,
+        top: 52
+    },
+
+    {
+        left: 75,
+        top: 54
+    },
+
+    /* НОРКА */
+
+    {
+        left: 84,
+        top: 49
+    }
 
 ];
 
 
-/* ===========================
-   ЗВУК ШОРОХА
-=========================== */
+
+/* =========================
+   ШОРОХ ЛИСТЬЕВ
+========================= */
+
 
 let audioContext;
+
 let rustleSource;
+
 let rustleGain;
 
-function startRustle(){
+
+
+function startRustle() {
+
 
     audioContext =
         audioContext ||
-        new (window.AudioContext || window.webkitAudioContext)();
+        new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+
+    if (
+        audioContext.state ===
+        "suspended"
+    ) {
+
+        audioContext.resume();
+
+    }
+
 
     const bufferSize =
         audioContext.sampleRate * 2;
+
 
     const buffer =
         audioContext.createBuffer(
@@ -556,52 +854,89 @@ function startRustle(){
             audioContext.sampleRate
         );
 
+
     const data =
         buffer.getChannelData(0);
 
+
+
     /*
-       Создаём мягкий шум.
-       Он имитирует движение
-       по сухим листьям.
+    Создаём мягкий
+    шорох сухих листьев
     */
 
-    for(let i=0;i<bufferSize;i++){
+    for (
+        let i = 0;
+        i < bufferSize;
+        i++
+    ) {
+
+
+        const noise =
+            Math.random() * 2 - 1;
+
+
+        const crackle =
+            Math.random() > .92
+                ? .8
+                : .16;
+
 
         data[i] =
-            (Math.random()*2-1) *
-            (Math.random()>.65 ? .7 : .18);
+            noise * crackle;
 
     }
 
+
+
     rustleSource =
-        audioContext.createBufferSource();
-
-    rustleSource.buffer = buffer;
-    rustleSource.loop = true;
+        audioContext
+        .createBufferSource();
 
 
-    /* фильтр делает звук мягче */
+    rustleSource.buffer =
+        buffer;
+
+
+    rustleSource.loop =
+        true;
+
+
 
     const filter =
-        audioContext.createBiquadFilter();
+        audioContext
+        .createBiquadFilter();
 
-    filter.type = "bandpass";
 
-    filter.frequency.value = 1800;
+    filter.type =
+        "bandpass";
 
-    filter.Q.value = .7;
+
+    filter.frequency.value =
+        1500;
+
+
+    filter.Q.value =
+        .65;
+
 
 
     rustleGain =
-        audioContext.createGain();
+        audioContext
+        .createGain();
 
-    rustleGain.gain.value = .07;
+
+    rustleGain.gain.value =
+        .045;
+
 
 
     rustleSource
         .connect(filter)
         .connect(rustleGain)
-        .connect(audioContext.destination);
+        .connect(
+            audioContext.destination
+        );
 
 
     rustleSource.start();
@@ -609,249 +944,387 @@ function startRustle(){
 }
 
 
-/* остановка шороха */
 
-function stopRustle(){
+/* =========================
+   ОСТАНОВИТЬ ШОРОХ
+========================= */
 
-    if(!rustleSource) return;
 
-    try{
+function stopRustle() {
 
-        rustleGain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime + .15
+
+    if (!rustleSource)
+        return;
+
+
+    try {
+
+
+        rustleGain.gain
+            .linearRampToValueAtTime(
+                0.001,
+                audioContext.currentTime
+                + .15
+            );
+
+
+        setTimeout(
+            () => {
+
+                try {
+
+                    rustleSource.stop();
+
+                }
+
+                catch(e) {}
+
+
+                rustleSource =
+                    null;
+
+            },
+
+            170
         );
 
-        setTimeout(()=>{
+    }
 
-            try{
-                rustleSource.stop();
-            }catch(e){}
-
-            rustleSource = null;
-
-        },180);
-
-    }catch(e){}
+    catch(e) {}
 
 }
 
 
-/* ===========================
+
+/* =========================
    НАЖАТИЕ НА СЛОГ
-=========================== */
-
-stops.forEach(stop=>{
-
-    stop.addEventListener("click",()=>{
-
-        const index =
-            Number(stop.dataset.index);
-
-        /*
-        Нельзя нажать следующий слог,
-        пока ребёнок не прошёл предыдущий.
-        */
-
-        if(index !== current || moving)
-            return;
+========================= */
 
 
-        moveHedgehog(index);
-
-    });
-
-});
+stops.forEach(
+    stop => {
 
 
-/* ===========================
-   ДВИЖЕНИЕ
-=========================== */
+        stop.addEventListener(
+            "click",
+            () => {
 
-function moveHedgehog(index){
+
+                const index =
+                    Number(
+                        stop.dataset.index
+                    );
+
+
+                /*
+                Можно нажать
+                только активный слог
+                */
+
+
+                if (
+                    index !== current ||
+                    moving
+                )
+                    return;
+
+
+                moveHedgehog(index);
+
+
+            }
+        );
+
+
+    }
+);
+
+
+
+/* =========================
+   ЁЖИК ИДЁТ
+========================= */
+
+
+function moveHedgehog(index) {
+
 
     moving = true;
 
-    stops[index].classList.remove("current");
+
+    stops[index]
+        .classList
+        .remove("current");
+
 
     startRustle();
 
-    hedgehog.classList.add("walking");
+
+    hedgehog
+        .classList
+        .add("walking");
 
 
-    const pos =
+
+    const position =
         positions[index];
 
 
+
     hedgehog.style.left =
-        pos.left + "%";
+        position.left + "%";
+
 
     hedgehog.style.top =
-        pos.top + "%";
+        position.top + "%";
 
 
-    /*
-       Через 1.25 секунды
-       ёжик останавливается.
-    */
 
-    setTimeout(()=>{
-
-        stopRustle();
-
-        hedgehog.classList.remove("walking");
-
-        stops[index].classList.add("done");
-
-        current++;
-
-        moving = false;
+    setTimeout(
+        () => {
 
 
-        /* следующий слог */
+            stopRustle();
 
-        if(current < stops.length){
 
-            stops[current]
+            hedgehog
                 .classList
-                .remove("locked");
+                .remove("walking");
 
-            stops[current]
+
+            stops[index]
                 .classList
-                .add("current");
+                .add("done");
 
-        }
 
-        else{
+            current++;
 
-            /*
-            Все слоги прочитаны.
-            Идём к бабушке.
-            */
 
-            setTimeout(
-                goToGrandma,
-                350
-            );
+            moving =
+                false;
 
-        }
 
-    },1250);
+
+            /* СЛЕДУЮЩИЙ СЛОГ */
+
+
+            if (
+                current <
+                stops.length
+            ) {
+
+
+                stops[current]
+                    .classList
+                    .remove("locked");
+
+
+                stops[current]
+                    .classList
+                    .add("current");
+
+
+            }
+
+
+            else {
+
+
+                setTimeout(
+                    goToGrandma,
+                    350
+                );
+
+
+            }
+
+
+        },
+
+        1350
+    );
 
 }
 
 
-/* ===========================
-   ФИНАЛ
-=========================== */
 
-function goToGrandma(){
+/* =========================
+   ИДЁМ К НОРКЕ
+========================= */
 
-    moving = true;
+
+function goToGrandma() {
+
+
+    moving =
+        true;
+
 
     startRustle();
 
-    hedgehog.classList.add("walking");
+
+    hedgehog
+        .classList
+        .add("walking");
+
+
+
+    const finalPosition =
+        positions[7];
+
+
 
     hedgehog.style.left =
-        positions[7].left + "%";
+        finalPosition.left + "%";
+
 
     hedgehog.style.top =
-        positions[7].top + "%";
+        finalPosition.top + "%";
 
 
-    setTimeout(()=>{
 
-        stopRustle();
-
-        hedgehog.classList.remove("walking");
-
-        /*
-        Открываем норку
-        */
-
-        house.classList.add("open");
+    setTimeout(
+        () => {
 
 
-        setTimeout(()=>{
+            stopRustle();
+
+
+            hedgehog
+                .classList
+                .remove("walking");
+
+
 
             /*
-            Выходит бабушка
+            Бабушка появляется
+            из норки
             */
 
-            grandma.classList.add("show");
+
+            setTimeout(
+                () => {
 
 
-            setTimeout(()=>{
-
-                createHearts();
-
-                finish.classList.add("show");
-
-                restart.style.display =
-                    "block";
-
-            },700);
+                    grandma
+                        .classList
+                        .add("show");
 
 
-        },550);
+
+                    setTimeout(
+                        () => {
 
 
-    },1300);
+                            createHearts();
+
+
+                            finish
+                                .classList
+                                .add("show");
+
+
+                            restart.style.display =
+                                "block";
+
+
+                        },
+
+                        800
+                    );
+
+
+                },
+
+                450
+            );
+
+
+        },
+
+        1350
+    );
 
 }
 
 
-/* ===========================
+
+/* =========================
    СЕРДЕЧКИ
-=========================== */
-
-function createHearts(){
-
-    const game =
-        document.getElementById("game");
+========================= */
 
 
-    for(let i=0;i<8;i++){
-
-        setTimeout(()=>{
-
-            const heart =
-                document.createElement("div");
-
-            heart.className =
-                "heart";
-
-            heart.innerHTML =
-                "❤️";
+function createHearts() {
 
 
-            heart.style.left =
-                (79 + Math.random()*12) + "%";
-
-            heart.style.top =
-                (55 + Math.random()*10) + "%";
-
-
-            game.appendChild(heart);
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
 
 
-            setTimeout(
-                ()=>heart.remove(),
-                2100
-            );
+        setTimeout(
+            () => {
 
 
-        },i*170);
+                const heart =
+                    document
+                    .createElement(
+                        "div"
+                    );
+
+
+                heart.className =
+                    "heart";
+
+
+                heart.textContent =
+                    "❤️";
+
+
+                heart.style.left =
+                    (
+                        78 +
+                        Math.random() * 13
+                    ) + "%";
+
+
+                heart.style.top =
+                    (
+                        46 +
+                        Math.random() * 12
+                    ) + "%";
+
+
+                game.appendChild(
+                    heart
+                );
+
+
+                setTimeout(
+                    () =>
+                        heart.remove(),
+                    2300
+                );
+
+
+            },
+
+            i * 150
+        );
+
 
     }
 
 }
 
 
-/* ===========================
-   ПОВТОР ИГРЫ
-=========================== */
+
+/* =========================
+   НАЧАТЬ ЗАНОВО
+========================= */
+
 
 restart.addEventListener(
     "click",
@@ -859,66 +1332,96 @@ restart.addEventListener(
 );
 
 
-function resetGame(){
 
-    current = 0;
-    moving = false;
+function resetGame() {
+
+
+    current =
+        0;
+
+
+    moving =
+        false;
+
+
 
     hedgehog.style.left =
-        "3%";
+        "2%";
+
 
     hedgehog.style.top =
-        "67%";
+        "70%";
 
 
-    grandma.classList.remove(
-        "show"
-    );
 
-    house.classList.remove(
-        "open"
-    );
+    grandma
+        .classList
+        .remove("show");
 
-    finish.classList.remove(
-        "show"
-    );
+
+    finish
+        .classList
+        .remove("show");
+
 
     restart.style.display =
         "none";
 
 
+
     stops.forEach(
-        (stop,index)=>{
+        (
+            stop,
+            index
+        ) => {
+
 
             stop.classList.remove(
                 "done",
                 "current"
             );
 
-            if(index===0){
 
-                stop.classList.remove(
-                    "locked"
-                );
+            if (
+                index === 0
+            ) {
 
-                stop.classList.add(
-                    "current"
-                );
+
+                stop
+                    .classList
+                    .remove(
+                        "locked"
+                    );
+
+
+                stop
+                    .classList
+                    .add(
+                        "current"
+                    );
+
 
             }
 
-            else{
 
-                stop.classList.add(
-                    "locked"
-                );
+            else {
+
+
+                stop
+                    .classList
+                    .add(
+                        "locked"
+                    );
+
 
             }
+
 
         }
     );
 
 }
+
 
 </script>
 
