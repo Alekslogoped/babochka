@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Бабочка на лужайке</title>
+  <style>
+    *{box-sizing:border-box} html,body{height:100%;margin:0;overflow:hidden;font-family:Arial,sans-serif}
+    body{display:grid;place-items:center;background:#dff4ff}
+    .game{position:relative;width:min(100vw,177.78vh);aspect-ratio:16/9;overflow:hidden;background:linear-gradient(#9fe4ff 0 43%,#86d66a 44% 100%);isolation:isolate}
+    .game::before{content:"";position:absolute;inset:39% -8% -12%;z-index:-1;background:radial-gradient(ellipse at 18% 60%,#73c758 0 30%,transparent 31%),radial-gradient(ellipse at 70% 50%,#62bc4f 0 40%,transparent 41%),#8bd66c}
+    .sun{position:absolute;left:5%;top:7%;width:9%;aspect-ratio:1;border-radius:50%;background:#ffe36c;box-shadow:0 0 35px #fff3a8}
+    .cloud{position:absolute;width:15%;height:7%;border-radius:999px;background:#fff9;filter:blur(.2px)}
+    .cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}.cloud::before{width:48%;aspect-ratio:1;left:14%;bottom:22%}.cloud::after{width:40%;aspect-ratio:1;right:12%;bottom:18%}
+    .c1{left:24%;top:11%}.c2{right:12%;top:18%;transform:scale(.8)}
+    .title{position:absolute;top:2.5%;left:50%;transform:translateX(-50%);margin:0;color:#28733b;font-size:clamp(18px,2.4vw,42px);text-shadow:0 2px #fff;white-space:nowrap}
+    .hint{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);margin:0;padding:.55em 1em;border-radius:999px;background:#ffffffdd;color:#29653a;font-size:clamp(12px,1.3vw,22px);box-shadow:0 5px 18px #28612e25;white-space:nowrap}
+    .flowers{position:absolute;inset:0}
+    .flower{position:absolute;width:9%;aspect-ratio:1;display:grid;place-items:center;border:0;background:transparent;font-size:clamp(38px,6.2vw,104px);filter:drop-shadow(0 5px 3px #315c2730);transform:translate(-50%,-50%);padding:0;cursor:default}
+    .flower.active{filter:drop-shadow(0 0 12px #fff) drop-shadow(0 0 18px #ffe85e)}
+    .flower:nth-child(1){left:12%;top:67%}.flower:nth-child(2){left:26%;top:48%}.flower:nth-child(3){left:41%;top:72%}.flower:nth-child(4){left:54%;top:45%}.flower:nth-child(5){left:67%;top:68%}.flower:nth-child(6){left:81%;top:47%}.flower:nth-child(7){left:91%;top:72%}
+    .butterfly{position:absolute;left:12%;top:57%;width:8%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:5;border:0;background:transparent;padding:0;cursor:pointer;transition:left 1.35s cubic-bezier(.35,.05,.24,1),top 1.35s cubic-bezier(.35,.05,.24,1);filter:drop-shadow(0 6px 4px #24461e33)}
+    .butterfly .icon{display:block;font-size:clamp(38px,6.5vw,110px);animation:flap .32s ease-in-out infinite alternate;transform-origin:center}
+    .butterfly.flying{animation:bob .45s ease-in-out infinite alternate}.butterfly:focus-visible{outline:4px solid #fff;border-radius:50%}
+    @keyframes flap{from{transform:scaleX(.76) rotate(-2deg)}to{transform:scaleX(1.06) rotate(2deg)}}
+    @keyframes bob{from{margin-top:-1.2%}to{margin-top:1.2%}}
+    .picture{position:absolute;z-index:6;width:10%;aspect-ratio:1;left:12%;top:43%;transform:translate(-50%,-50%) scale(.7);border:clamp(3px,.45vw,8px) solid #fff;border-radius:50%;display:grid;place-items:center;background:#fff9d9;font-size:clamp(28px,4.6vw,78px);box-shadow:0 8px 24px #31542f35;opacity:0;pointer-events:none;transition:left 1.35s cubic-bezier(.35,.05,.24,1),top 1.35s cubic-bezier(.35,.05,.24,1),opacity .28s,transform .28s}
+    .picture.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    .finish{position:absolute;inset:0;z-index:20;display:grid;place-content:center;gap:1.2rem;text-align:center;background:#dfffe9e8;opacity:0;pointer-events:none;transition:opacity .35s}
+    .finish.show{opacity:1;pointer-events:auto}.finish h2{margin:0;color:#267540;font-size:clamp(34px,6vw,92px)}
+    .again{border:0;border-radius:999px;padding:.7em 1.4em;background:#ff7ca9;color:white;font-weight:700;font-size:clamp(18px,2vw,34px);box-shadow:0 7px 0 #d84d7e;cursor:pointer}.again:active{transform:translateY(5px);box-shadow:0 2px 0 #d84d7e}
+    .confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}.confetti i{position:absolute;top:-10%;width:1.2%;aspect-ratio:.55;background:var(--c);animation:fall 2.6s linear infinite;animation-delay:var(--d);left:var(--x);transform:rotate(var(--r))}@keyframes fall{to{top:110%;transform:rotate(720deg)}}
+    @media(max-aspect-ratio:1/1){.hint{bottom:1%;}.title{top:1.5%}}
+  </style>
+</head>
+<body>
+  <main class="game" id="game" aria-label="Игра: бабочка перелетает по семи цветкам">
+    <div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div>
+    <h1 class="title">Бабочка на лужайке</h1>
+    <div class="flowers" id="flowers">
+      <button class="flower" aria-label="Цветок 1">🌸</button><button class="flower" aria-label="Цветок 2">🌼</button><button class="flower" aria-label="Цветок 3">🌺</button><button class="flower" aria-label="Цветок 4">🌻</button><button class="flower" aria-label="Цветок 5">🌷</button><button class="flower" aria-label="Цветок 6">🌼</button><button class="flower" aria-label="Цветок 7">🌸</button>
+    </div>
+    <div class="picture" id="picture" aria-live="polite"></div>
+    <button class="butterfly" id="butterfly" aria-label="Нажми на бабочку, чтобы она полетела дальше"><span class="icon">🦋</span></button>
+    <p class="hint" id="hint">Посмотри на картинку и нажми на бабочку</p>
+    <section class="finish" id="finish"><div class="confetti" id="confetti"></div><h2>Молодец! 🎉</h2><button class="again" id="again">Играть ещё</button></section>
+  </main>
+  <script>
+    // Замените эти значки на свои картинки: {type:'image', src:'images/1.png', alt:'...'}
+    const cards=[
+      {type:'emoji',value:'🍎',alt:'яблоко'}, {type:'emoji',value:'🐭',alt:'мышка'},
+      {type:'emoji',value:'🚗',alt:'машина'}, {type:'emoji',value:'🧀',alt:'сыр'},
+      {type:'emoji',value:'🐱',alt:'кот'}, {type:'emoji',value:'☀️',alt:'солнце'},
+      {type:'emoji',value:'🎈',alt:'шар'}
+    ];
+    const flowerPos=[{x:12,y:67},{x:26,y:48},{x:41,y:72},{x:54,y:45},{x:67,y:68},{x:81,y:47},{x:91,y:72}];
+    const butterfly=document.getElementById('butterfly'), picture=document.getElementById('picture');
+    const hint=document.getElementById('hint'), finish=document.getElementById('finish'), flowers=[...document.querySelectorAll('.flower')];
+    let step=0,busy=false;
+    function renderCard(){
+      const card=cards[step]; picture.replaceChildren(); picture.setAttribute('aria-label',card.alt);
+      if(card.type==='image'){const img=new Image();img.src=card.src;img.alt=card.alt;img.style.cssText='width:82%;height:82%;object-fit:contain';picture.append(img)}
+      else picture.textContent=card.value;
+      picture.style.left=flowerPos[step].x+'%'; picture.style.top=(flowerPos[step].y-24)+'%';
+      requestAnimationFrame(()=>picture.classList.add('show'));
+      flowers.forEach((f,i)=>f.classList.toggle('active',i===step));
+    }
+    function placeButterfly(animate=true){
+      if(!animate) butterfly.style.transition='none';
+      butterfly.style.left=flowerPos[step].x+'%'; butterfly.style.top=(flowerPos[step].y-10)+'%';
+      if(!animate) requestAnimationFrame(()=>butterfly.style.transition='');
+    }
+    function next(){
+      if(busy)return; picture.classList.remove('show'); flowers[step].classList.remove('active');
+      if(step===cards.length-1){setTimeout(()=>finish.classList.add('show'),320);return}
+      busy=true; step++; butterfly.classList.add('flying'); placeButterfly(true);
+      setTimeout(()=>{butterfly.classList.remove('flying');renderCard();busy=false},1400);
+    }
+    function reset(){step=0;busy=false;finish.classList.remove('show');placeButterfly(false);renderCard()}
+    butterfly.addEventListener('click',next); document.getElementById('again').addEventListener('click',reset);
+    document.getElementById('confetti').innerHTML=Array.from({length:34},(_,i)=>`<i style="--x:${(i*29)%100}%;--d:-${(i%13)/5}s;--r:${i*17}deg;--c:${['#ff6b9d','#ffd34e','#5fd6ff','#7cd86c'][i%4]}"></i>`).join('');
+    reset();
+  </script>
+</body>
+</html>
